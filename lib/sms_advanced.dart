@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:async';
 import 'dart:io';
 
@@ -140,13 +142,14 @@ class SmsMessage implements Comparable<SmsMessage> {
   /// Check if message is read
   bool? get isRead => _read;
 
-  /// Get date
+  // ignore: unnecessary_getters_setters
   DateTime? get date => _date;
 
   /// Get date sent
   DateTime? get dateSent => _dateSent;
 
   /// Get message kind
+  // ignore: unnecessary_getters_setters
   SmsMessageKind? get kind => _kind;
 
   Stream<SmsMessageState> get onStateChanged => _stateStreamController.stream;
@@ -230,6 +233,7 @@ class SmsThread {
   }
 
   /// Get messages from thread
+  // ignore: unnecessary_getters_setters
   List<SmsMessage> get messages => _messages;
 
   /// Get address
@@ -245,6 +249,7 @@ class SmsThread {
   int? get threadId => _id;
 
   /// Get contact info
+  // ignore: unnecessary_getters_setters
   Contact? get contact => _contact;
 
   /// Set contact info
@@ -575,6 +580,7 @@ class SmsRemover {
       final bool? result = await platform.invokeMethod('removeSms', arguments);
       finalResult = result;
     } catch (e) {
+      // ignore: avoid_print
       print(e);
     }
 
