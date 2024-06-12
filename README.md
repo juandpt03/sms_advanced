@@ -273,7 +273,7 @@ Note that `sms_advanced` requires the use of a `FragmentActivity` instead of an
 
 ### Permissions
 To send SMSs and access the SIM card you need to add the following permissions
-to your AndroidManifest.xml
+to your AndroidManifest.xml (just the version under main)
 As of Android 23 you need to prompt the user for these permissions before
 you use the feature.
 
@@ -283,9 +283,7 @@ you use the feature.
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="android.permission.RECEIVE_SMS" />
 	<uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
-	<uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" tools:ignore="ProtectedPermissions" />
-
-  ...
+	  
   ```
 
 
