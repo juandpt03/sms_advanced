@@ -46,7 +46,7 @@ internal class SimCardsHandler(
             simCards
             return true
         }
-        result.error("#01", "permission denied", null)
+        result.error("#01", "permission READ_PHONE_STATE denied", null)
         return false
     }
 
