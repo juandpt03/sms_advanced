@@ -30,6 +30,10 @@ class SmsReceiver : EventChannel.StreamHandler, RequestPermissionsResultListener
     private val permissionsList = arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS)
     private var sink: EventSink? = null
 
+    // Constructor sin argumentos
+    constructor()
+
+    // Constructor con argumentos
     constructor(context: Context, binding: ActivityPluginBinding) {
         this.context = context
         this.binding = binding
@@ -45,7 +49,7 @@ class SmsReceiver : EventChannel.StreamHandler, RequestPermissionsResultListener
         permissions?.checkAndRequestPermission(permissionsList, Permissions.RECV_SMS_ID_REQ)
     }
 
-    override fun onCancel(o: Any?) {
+    override fun onCancel(arguments: Any?) {
         context?.unregisterReceiver(receiver)
         receiver = null
     }
@@ -58,21 +62,15 @@ class SmsReceiver : EventChannel.StreamHandler, RequestPermissionsResultListener
         if (requestCode != Permissions.RECV_SMS_ID_REQ) {
             return false
         }
-        var isOk = true
-        for (res in grantResults) {
-            if (res != PackageManager.PERMISSION_GRANTED) {
-                isOk = false
-                break
-            }
+        val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+        if (!allGranted) {
+            sink?.endOfStream()
         }
-        if (isOk) {
-            return true
-        }
-        sink?.endOfStream()
-        return false
+        return allGranted
     }
 
-    class SmsBroadcastReceiver(private val events: EventSink?) : BroadcastReceiver() {
+    // Clase interna para manejar la recepción de mensajes SMS
+    inner class SmsBroadcastReceiver(private val events: EventSink?) : BroadcastReceiver() {
         @TargetApi(Build.VERSION_CODES.KITKAT)
         override fun onReceive(context: Context, intent: Intent) {
             try {
