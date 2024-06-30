@@ -21,29 +21,35 @@ import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
 import org.json.JSONObject
 import java.util.*
 
-
 /**
  * Created by crazygenius on 1/08/21.
  */
-internal class SmsReceiver(val context: Context, private val binding: ActivityPluginBinding) : EventChannel.StreamHandler,
-    RequestPermissionsResultListener {
+internal class SmsReceiver() : EventChannel.StreamHandler, RequestPermissionsResultListener {
+
+    private var context: Context? = null
+    private var binding: ActivityPluginBinding? = null
     private var receiver: BroadcastReceiver? = null
-    private val permissions: Permissions = Permissions(context, binding.activity as FlutterFragmentActivity)
-    private val permissionsList =
-        arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS)
+    private var permissions: Permissions? = null
+    private val permissionsList = arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS)
     private var sink: EventSink? = null
+
+    constructor(context: Context, binding: ActivityPluginBinding) : this() {
+        this.context = context
+        this.binding = binding
+        this.permissions = Permissions(context, binding.activity as FlutterFragmentActivity)
+        binding.addRequestPermissionsResultListener(this)
+    }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     override fun onListen(arguments: Any?, events: EventSink) {
         receiver = createSmsReceiver(events)
-        context
-            .registerReceiver(receiver, IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION))
+        context?.registerReceiver(receiver, IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION))
         sink = events
-        permissions.checkAndRequestPermission(permissionsList, Permissions.RECV_SMS_ID_REQ)
+        permissions?.checkAndRequestPermission(permissionsList, Permissions.RECV_SMS_ID_REQ)
     }
 
     override fun onCancel(o: Any?) {
-        context.unregisterReceiver(receiver)
+        context?.unregisterReceiver(receiver)
         receiver = null
     }
 
@@ -63,12 +69,12 @@ internal class SmsReceiver(val context: Context, private val binding: ActivityPl
                     obj.put("date", Date().time)
                     obj.put("date_sent", msgs[0].timestampMillis)
                     obj.put(
-                        "read",
-                        if (msgs[0].statusOnIcc == SmsManager.STATUS_ON_ICC_READ) 1 else 0
+                            "read",
+                            if (msgs[0].statusOnIcc == SmsManager.STATUS_ON_ICC_READ) 1 else 0
                     )
                     obj.put(
-                        "thread_id",
-                        TelephonyCompat.getOrCreateThreadId(context, msgs[0].originatingAddress!!)
+                            "thread_id",
+                            TelephonyCompat.getOrCreateThreadId(context, msgs[0].originatingAddress!!)
                     )
                     var body = ""
                     for (msg in msgs) {
@@ -84,9 +90,9 @@ internal class SmsReceiver(val context: Context, private val binding: ActivityPl
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
+            requestCode: Int,
+            permissions: Array<String>,
+            grantResults: IntArray
     ): Boolean {
         if (requestCode != Permissions.RECV_SMS_ID_REQ) {
             return false
@@ -101,11 +107,7 @@ internal class SmsReceiver(val context: Context, private val binding: ActivityPl
         if (isOk) {
             return true
         }
-        sink!!.endOfStream()
+        sink?.endOfStream()
         return false
-    }
-
-    init {
-        binding.addRequestPermissionsResultListener(this)
     }
 }
